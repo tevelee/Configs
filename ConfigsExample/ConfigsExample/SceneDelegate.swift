@@ -18,6 +18,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         configRepo.add(.chartOffset)
         configRepo.add(.valuesForChart)
         configRepo.add(.myExperiment)
+        configRepo.add(.color)
         TweakRepository.shared.add(.resetAction)
         TweakRepository.shared.add(.restartAction)
         

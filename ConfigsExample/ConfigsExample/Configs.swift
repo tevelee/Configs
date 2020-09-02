@@ -2,6 +2,11 @@ import Foundation
 import Configs
 import Tweaks
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 // MARK: - Definitions
 
@@ -29,6 +34,12 @@ extension ConfigDefinition where Value == Int {
 extension ConfigDefinition where Value == [Int] {
     static let valuesForChart = ConfigDefinition(defaultValue: [1, 2, 3])
         .tweak(category: "Product Settings", section: "Chart", name: "Test values")
+}
+
+extension ConfigDefinition where Value == Color {
+    static let color = ConfigDefinition(defaultValue: .red)
+        .when(.deviceType(is: .iPhone), return: .purple)
+        .tweak(category: "Product Settings", section: "Chart", name: "Test values", renderer: ColorPickerRenderer())
 }
 
 extension ConfigDefinition where Value == Double? {
@@ -79,5 +90,67 @@ public extension ConfigCondition {
 public extension ConfigDefinition {
     func experimentManager(_ key: String) -> ConfigDefinition {
         self //ConfigDefinition(id: id, defaultValue: defaultValue, providers: providers + [AnyProvider(experimentManager.currentSession[key])])
+    }
+}
+
+extension Color: Configurable, Tweakable {
+    public static var valueTransformer: Tweaks.ValueTransformer<Color, String> {
+        Tweaks.ValueTransformer(transform: \.hexValue, retrieve: Color.init(hex:))
+    }
+    
+    init(hex string: String) {
+        var string: String = string.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        if string.hasPrefix("#") {
+            _ = string.removeFirst()
+        }
+
+        let scanner = Scanner(string: string)
+
+        var color: UInt64 = 0
+        scanner.scanHexInt64(&color)
+
+        let mask = 0x000000FF
+        let r = Int(color >> 24) & mask
+        let g = Int(color >> 16) & mask
+        let b = Int(color >> 8) & mask
+        let a = Int(color) & mask
+
+        let red = Double(r) / 255.0
+        let green = Double(g) / 255.0
+        let blue = Double(b) / 255.0
+        let alpha = Double(a) / 255.0
+
+        self.init(.sRGB, red: red, green: green, blue: blue, opacity: alpha)
+    }
+    
+    var hexValue: String {
+        guard let values = cgColor?.components else { return "#00000000" }
+        let outputR = Int(values[0] * 255)
+        let outputG = Int(values[1] * 255)
+        let outputB = Int(values[2] * 255)
+        let outputA = Int(values[3] * 255)
+        return "#"
+            + String(format:"%02X", outputR)
+            + String(format:"%02X", outputG)
+            + String(format:"%02X", outputB)
+            + String(format:"%02X", outputA)
+    }
+}
+
+public struct ColorPickerRenderer: ViewRenderer {
+    public typealias Value = Color
+    public init() {}
+    public func previewView(value: Value) -> some View {
+        value.frame(width: 30, height: 30).cornerRadius(8)
+    }
+    
+    public func tweakView(value: Binding<Value>) -> some View {
+        Group {
+            if #available(iOS 14.0, *) {
+                ColorPicker("Pick a color", selection: value)
+            } else {
+                previewView(value: value.wrappedValue)
+            }
+        }
     }
 }
