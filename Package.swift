@@ -17,7 +17,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
 //        .package(name: "NonEmpty", url: "https://github.com/pointfreeco/swift-nonempty.git", from: "0.2.2"),
-        .package(name: "Tweaks", url: "https://github.com/tevelee/Tweaks", from: "1.0.0")
+        .package(name: "Tweaks", url: "https://github.com/tevelee/Tweaks", from: "2.0.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.

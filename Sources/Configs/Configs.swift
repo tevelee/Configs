@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import SwiftUI
 
 public enum ValueOverride<Value>: ExpressibleByNilLiteral {
     case noOverride
@@ -41,6 +42,7 @@ extension Int: Configurable {}
 extension Double: Configurable {}
 extension Optional: Configurable where Wrapped: Configurable {}
 extension Array: Configurable where Element: Configurable {}
+extension Color: Configurable {}
 
 public protocol ConfigDefinitionBase {
     var objectWillChange: AnyPublisher<Void, Never> { get }

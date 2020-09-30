@@ -18,11 +18,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         configRepo.add(.chartOffset)
         configRepo.add(.valuesForChart)
         configRepo.add(.myExperiment)
-        configRepo.add(.color)
-        TweakRepository.shared.add(.resetAction)
-        TweakRepository.shared.add(.restartAction)
+        if #available(iOS 14.0, *) {
+            configRepo.add(.color)
+        }
+        TweakRepository.shared.add(tweak: .reset, category: "Product Settings", section: "Actions")
+        TweakRepository.shared.add(tweak: .restart, category: "Product Settings", section: "Actions")
         
-        let tweak = TweakDefinition(name: "Number of items", initialValue: 1, valueRenderer: InputAndStepperRenderer())
+        let tweak = TweakDefinition(id: "items", name: "Number of items", initialValue: 1, renderer: InputAndStepperRenderer(), store: UserDefaultsStore(converter: .description))
         TweakRepository.shared.add(tweak: tweak, category: "Product Settings", section: "Feature Settings")
         
         print(configRepo.isOn(.secretNewInProgressFeatureFlag))
